@@ -95,17 +95,17 @@ const run = async () => {
     });
 
     /*
-      #############################
-      ### Get Folder By Id API ####
-      #############################
+      ################################
+      ### Delete Folder By Id API ####
+      ################################
     */
-    app.get("/folders/:folderId", async (req, res) => {
+    app.delete("/folders/:folderId", async (req, res) => {
       const folderId = req.params.folderId;
       try {
-        const customer = await foldersCollection.findOne({
+        const result = await foldersCollection.deleteOne({
           _id: ObjectId(folderId),
         });
-        res.status(200).json(customer);
+        res.status(200).json(result);
       } catch (err) {
         res.status(500).json(err);
       }
