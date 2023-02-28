@@ -22,9 +22,9 @@ const run = async () => {
     const foldersCollection = db.collection("folders");
 
     /*
-      #############################
-      #### Get All Folders API ####
-      #############################
+      ###############################
+      #### Create New Folder API ####
+      ###############################
     */
     app.post("/folders", async (req, res) => {
       const user = req.body;
@@ -43,6 +43,52 @@ const run = async () => {
         const result = foldersCollection.find(query);
         const folders = await result.toArray();
         res.status(200).json(folders);
+      } catch (err) {
+        res.status(500).json(err);
+      }
+    });
+
+    /*
+      ###################################
+      ### Get Folders by ParentId API ###
+      ###################################
+    */
+    app.get("/folders/parent/:parentId", async (req, res) => {
+      const parentId = req.params.parentId;
+      let query = { parentId };
+      try {
+        const result = foldersCollection.find(query);
+        const foldersByParent = await result.toArray();
+        res.status(200).json(foldersByParent);
+      } catch (err) {
+        res.status(500).json(err);
+      }
+    });
+
+    /*
+      #######################################
+      ### Get Folders by ParentId Groping ###
+      #######################################
+    */
+    app.get("/folders/parent", async (req, res) => {
+      try {
+        const result = foldersCollection.aggregate([
+          {
+            $group: {
+              _id: "$parentId",
+              children: {
+                $push: {
+                  _id: "$_id",
+                  name: "$name",
+                  // parentId: "$parentId",
+                  readOnly: "$readOnly",
+                },
+              },
+            },
+          },
+        ]);
+        const foldersByParent = await result.toArray();
+        res.status(200).json(foldersByParent);
       } catch (err) {
         res.status(500).json(err);
       }
